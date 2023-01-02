@@ -1,0 +1,297 @@
+const { User , vehicle, Rider, Ride } = require('../models');
+const  bcrypt  =  require("bcrypt");
+
+// app.get('/showRiderProfile', async(req, res) => {
+const showRiderProfile = async(req, res) => {
+
+    const {email} = req.body;          
+    const user = await User.findOne({ where: { email: email } });
+
+    const showRider = await Rider.findOne({ where: { UserId: user.id } });
+    if(!showRider){
+        return res.status(401).json({
+            data: null
+            // "message" : "Not Registered as Rider",
+        });
+    }else{
+    
+        const showVehicle = await vehicle.findOne({ where: { id: showRider.vehicleId, UserId: user.id } })
+
+        const riderdata = await Rider.findOne({
+            where:{vehicleId: showVehicle.id},
+            attributes: ['id', 'UserId', 'vehicleId'],
+            include:[{
+                model: vehicle,
+                attributes: ['id','v_name', 'v_number', 'v_type','v_color','noOfSeats','fuelAverage']
+            }],
+        })
+        return res.status(200).json({
+            data: riderdata
+        });
+
+    }    
+    
+}
+
+// app.post('/addVehicle', async (req, res) => {
+const addVehicle = async(req, res) => {
+
+    const {email, v_name, v_number, v_type, v_color, noOfSeats, fuelAverage} = req.body;
+
+    try{
+            const user = await User.findOne({ where: { email: email } });
+            if(!user){
+                return res.status(401).json({
+                    "message" : "Email is not regstered"
+                })
+            }
+
+            if (user.contactNo == null || user.CNIC == null) {
+                return res.status(400).json({
+                    "message" : "Try to complete your User profile first.",
+                });
+            }
+            
+            const isVehicle = await vehicle.findOne({ where: { v_number: v_number } })
+            if (isVehicle) {
+                return res.status(400).json({
+                    "message" : "This Vehicle is already registered by anOther person",
+                });
+                
+            }
+            const isExist = await Rider.findOne({ where: { UserId: user.id } })
+            if (isExist) {
+                return res.status(400).json({
+                    "message" : "You Can't add more than 1 vehicle, update your details"
+                })
+            }
+            const vehicleDetails = await vehicle.create({ v_name, v_number, v_type, v_color, noOfSeats, fuelAverage});
+
+            const riderDetails=  await Rider.create({UserId:user.id, vehicleId:vehicleDetails.id});
+            await User.update({userType:"Rider"},{ where: { email: email } });
+
+            await vehicleDetails.save();
+            await riderDetails.save();
+
+            const updatedUser = await User.findOne({ where: { email: email } });
+            await updatedUser.save();
+
+            const details = await Rider.findOne({
+                where:{vehicleId: vehicleDetails.id},
+                attributes: ['id', 'UserId', 'vehicleId'],
+                include:[{
+                    model: vehicle,
+                    attributes: ['id','v_name', 'v_number', 'v_type','v_color','noOfSeats','fuelAverage']
+                }],
+            })
+
+            return res.status(200).json({
+                data: details
+            });
+
+    }catch(error){
+        return res.status(401).send({"status":"failed","message":"Unauthorized User"})
+    }
+
+}
+
+
+// app.put('/updateRiderProfile', async(req, res) =>{
+const updateRiderProfile = async(req, res) => {
+
+    const {email,v_name, v_number, v_type, v_color, noOfSeats, fuelAverage} = req.body;
+
+    try{
+        const user = await User.findOne({ where: { email: email } });
+        if(!user){
+            return res.status(401).json({
+                "message" : "Email is not regstered"
+            })
+        }
+
+        if (user.contactNo == null || user.CNIC == null) {
+            return res.status(400).json({
+                "message" : "Try to complete your User profile first.",
+            });
+        }
+
+        const isExist = await Rider.findOne({ where: { UserId: user.id } })
+        if (!isExist) {
+            return res.status(400).json({
+                "message" : "First add your vehicle details before updation."
+            })
+        }
+
+
+
+        const isVehicle = await vehicle.findOne({ where: { v_number: v_number } });
+        const isAlreadtThere = await Rider.findOne({ where: { vehicleId: isVehicle.id, UserId: user.id } });
+        if (isVehicle && !isAlreadtThere) {
+            return res.status(400).json({
+                "message" : "This Vehicle is already registered by anOther person",
+            });
+        }
+
+        const newrider = await Rider.findOne({ where: { UserId: user.id } });
+        if (!newrider) {
+            return res.status(400).json({
+                "message" : "Data is null try to add data first",
+            });
+        }
+            
+        await vehicle.update({ v_name, v_number, v_type, v_color, noOfSeats, fuelAverage },{
+            where:{
+                id: newrider.vehicleId
+            },
+        });    
+
+        vehicleDetails = await vehicle.findOne({ where: { v_number: v_number } });
+        riderDetails = await Rider.findOne({ where: { vehicleId: vehicleDetails.id } });
+        
+        await vehicleDetails.save();
+        await riderDetails.save();
+
+        const profile = await Rider.findOne({
+            where:{vehicleId: vehicleDetails.id},
+            attributes: ['id', 'UserId', 'vehicleId'],
+            include:[{
+                model: vehicle,
+                attributes: ['id','v_name', 'v_number', 'v_type','v_color','noOfSeats','fuelAverage']
+            }],
+        })
+
+        return res.status(200).json({
+                data:profile
+            });
+
+    }catch(error){
+        return res.status(401).send({"status":"failed","message":"Unauthorized User"})
+    }
+
+}
+
+
+// app.post('/offerRide', async(req, res) => {
+const offerRide = async(req, res) => {
+
+    const {email, pickUpAdd, dropOffAdd, description, fair,time, availableSeats} = req.body;
+
+    if (pickUpAdd == dropOffAdd) {
+        return res.status(400).json({
+            "message":"Your DropOff location is same as PickUp Location, try to write different."
+        })
+    }
+
+    try {
+        const user = await User.findOne({ where: { email: email } });
+        
+        if(!user){
+            return res.status(401).json({
+                "message" : "Email is not regstered"
+            })
+        }
+
+        if (user.contactNo == null || user.CNIC == null) {
+            return res.status(400).json({
+                "message" : "Try to complete your User profile first.",
+            });
+        }
+
+        const isPresent = await Rider.findOne({where: {UserId:user.id}})
+        if (!isPresent) {
+            return res.status(401).json({"message":"You are not registered as a Rider"});
+        }
+        await vehicle.update({ availableSeats: availableSeats },{
+            where:{
+                id: isPresent.vehicleId
+            },
+        });
+
+        const curr_Ride = await Ride.create({pickUpAddres:pickUpAdd, dropOfAddress:dropOffAdd, description:description, fair:fair, dateTime:time, RiderId:isPresent.id});
+        res.status(200).json({
+            data:curr_Ride
+        })
+            
+    } catch (error) {
+        res.status(500).send({"status":"failed","message":"Unauthorized Rider"})
+    }
+}
+
+// app.get('/getAllRides', async(req, res) => {
+const getAllRides = async(req, res) => {
+
+    const riders = await Rider.findAll({
+        attributes: ['id', 'UserId', 'vehicleId'],
+        include:[{
+            model: User,
+            attributes: ['fullName', 'email', 'contactNo']}],
+    })
+
+
+    const rides = await Ride.findAll({
+        where:{Status:'Not Completed'},
+        attributes: ['id', 'pickUpAddres', 'dropOfAddress','fair','dateTime', 'RiderId'],
+        include:[{
+            model: Rider,
+            attributes: ['id', 'UserId', 'vehicleId'],
+            
+            include:[{
+                model:User,
+                attributes: ['id','fullName', 'email', 'contactNo']
+            }]
+
+        }]
+
+    });
+
+
+    if (rides) {
+        return res.status(200).json({
+            rides
+        });
+    }
+
+    // res.status(401).json({
+    //     message:"User not present !"
+    // });
+}
+
+
+// app.delete('/deleteRide', async(req, res) => {
+const deleteRide = async(req, res) => {
+
+    const {email,id} = req.body;
+
+    try {
+        const user = await User.findOne({ where: { email: email } });
+        const toDeleteRider = await Rider.findOne({ where: { UserId: user.id } });
+        
+        const findRide = await Ride.findOne({where: {RiderId:toDeleteRider.id, id:id}});
+        if (!findRide) {
+            return res.status(400).json({
+                "message" : "Ride doesn't Exist",
+            });
+        }
+        const deleteRequest = await RideRequest.destroy({where: {RideId:toDeleteRider.id}})
+        const deleteRide = await Ride.destroy({where: {RiderId:toDeleteRider.id, id:id}});
+        Ride.save();
+        RideRequest.save();
+        return res.status(200).json({
+            "message" : "Ride Deleted Successfully",
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            "error" : error,
+        });
+    }
+    
+}
+module.exports = {
+    showRiderProfile,
+    addVehicle,
+    updateRiderProfile,
+    deleteRide,
+    offerRide,
+    getAllRides
+};
