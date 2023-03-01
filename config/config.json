@@ -1,9 +1,9 @@
 {
   "development": {
     "username": "postgres",
-    "password": "0987654321",
-    "database": "carpoolDB",
-    "host": "database-1.c5btxhwmm8xe.us-east-1.rds.amazonaws.com",
+    "password": "admin",
+    "database": "campuscar",
+    "host": "127.0.0.1",
     "dialect": "postgres"
   },
   "test": {

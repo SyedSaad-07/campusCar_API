@@ -4,18 +4,19 @@ const  bcrypt  =  require("bcrypt");
 // app.get('/showRiderProfile', async(req, res) => {
 const showRiderProfile = async(req, res) => {
 
-    const {email} = req.body;          
+    const {email} = req.query;          
     const user = await User.findOne({ where: { email: email } });
 
     const showRider = await Rider.findOne({ where: { UserId: user.id } });
-    if(!showRider){
-        return res.status(401).json({
-            data: null
-            // "message" : "Not Registered as Rider",
-        });
-    }else{
-    
-        const showVehicle = await vehicle.findOne({ where: { id: showRider.vehicleId, UserId: user.id } })
+        if(!showRider){
+            return res.status(401).json({
+                data: null
+                // "message" : "Not Registered as Rider",
+            });
+        }
+        else{
+            // const showVehicle = await vehicle.findOne({ where: { id: showRider.vehicleId, UserId: user.id } })
+            const showVehicle = await vehicle.findOne({ where: { id: showRider.vehicleId } })
 
         const riderdata = await Rider.findOne({
             where:{vehicleId: showVehicle.id},
@@ -28,15 +29,13 @@ const showRiderProfile = async(req, res) => {
         return res.status(200).json({
             data: riderdata
         });
-
-    }    
-    
+        }
 }
 
 // app.post('/addVehicle', async (req, res) => {
 const addVehicle = async(req, res) => {
 
-    const {email, v_name, v_number, v_type, v_color, noOfSeats, fuelAverage} = req.body;
+    const {email, v_name, v_number, v_type, v_color, noOfSeats, fuelAverage} = req.query;
 
     try{
             const user = await User.findOne({ where: { email: email } });
@@ -99,7 +98,7 @@ const addVehicle = async(req, res) => {
 // app.put('/updateRiderProfile', async(req, res) =>{
 const updateRiderProfile = async(req, res) => {
 
-    const {email,v_name, v_number, v_type, v_color, noOfSeats, fuelAverage} = req.body;
+    const {email,v_name, v_number, v_type, v_color, noOfSeats, fuelAverage} = req.query;
 
     try{
         const user = await User.findOne({ where: { email: email } });
@@ -174,7 +173,7 @@ const updateRiderProfile = async(req, res) => {
 // app.post('/offerRide', async(req, res) => {
 const offerRide = async(req, res) => {
 
-    const {email, pickUpAdd, dropOffAdd, description, fair,time, availableSeats} = req.body;
+    const {email, pickUpAdd, dropOffAdd, description, fair,time, availableSeats} = req.query;
 
     if (pickUpAdd == dropOffAdd) {
         return res.status(400).json({
@@ -206,14 +205,19 @@ const offerRide = async(req, res) => {
                 id: isPresent.vehicleId
             },
         });
-
+        vehicleDetails = await vehicle.findOne({ where: { id: isPresent.vehicleId } });
+        vehicleDetails.save()
+        // return res.status(401).json({"message":"Correct API"});
         const curr_Ride = await Ride.create({pickUpAddres:pickUpAdd, dropOfAddress:dropOffAdd, description:description, fair:fair, dateTime:time, RiderId:isPresent.id});
-        res.status(200).json({
+        await curr_Ride.save()
+        return res.status(200).json({
             data:curr_Ride
         })
             
     } catch (error) {
-        res.status(500).send({"status":"failed","message":"Unauthorized Rider"})
+        res.status(500).send({"status":error,})
+
+        // res.status(500).send({"status":"failed","message":"Unauthorized Rider"})
     }
 }
 
@@ -260,7 +264,7 @@ const getAllRides = async(req, res) => {
 // app.delete('/deleteRide', async(req, res) => {
 const deleteRide = async(req, res) => {
 
-    const {email,id} = req.body;
+    const {email,id} = req.query;
 
     try {
         const user = await User.findOne({ where: { email: email } });

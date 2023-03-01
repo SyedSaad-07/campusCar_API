@@ -5,7 +5,8 @@ const  bcrypt  =  require("bcrypt");
 // app.post('/signup', async(req, res) => 
 const SignUp = async(req, res) => {
 
-    const {email, pass} = req.body;
+    // const {email, pass} = req.body;
+    const {email, pass} = req.query;
 
     try {
             const user = await User.findOne({ where: { email:email } });
@@ -45,7 +46,7 @@ const SignUp = async(req, res) => {
 // app.post('/login', async(req, res) => {
 const Login = async(req, res) => {
 
-    const {email, pass} = req.body;
+    const {email, pass} = req.query;
 
     try {       
             const user = await User.findOne({ where: { email:email } });
@@ -83,7 +84,7 @@ const Login = async(req, res) => {
 // app.get('/showUserProfile', async(req, res) => {
 const showUserProfile = async(req, res) => {
 
-    const {email} = req.body;
+    const {email} = req.query;
           
     const user = await User.findOne({ where: { email: email } });
     if (user) {
@@ -98,7 +99,7 @@ const showUserProfile = async(req, res) => {
 
 // app.patch('/updateUserProfile', async (req, res) => {
 const updateUserProfile = async(req, res) => {
-    const {name,gender, number, userType,CNIC,email} = req.body;
+    const {name,gender, number, userType,CNIC,email} = req.query;
 
     try{
         const user = await User.findOne({ where: { email: email } });
