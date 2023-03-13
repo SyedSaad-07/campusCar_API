@@ -1,23 +1,23 @@
 {
   "development": {
     "username": "postgres",
-    "password": "campusCarForFast",
-    "database": "campusCarDatabase",
-    "host": "campuscar.cvua8k2qtxyu.us-east-1.rds.amazonaws.com",
+    "password": "campuscarForFast",
+    "database": "campuscar",
+    "host": "campuscardb.cvua8k2qtxyu.us-east-1.rds.amazonaws.com",
     "dialect": "postgres"
   },
   "test": {
     "username": "postgres",
-    "password": "campusCarForFast",
-    "database": "campusCarDatabase",
-    "host": "campuscar.cvua8k2qtxyu.us-east-1.rds.amazonaws.com",
+    "password": "campuscarForFast",
+    "database": "campuscar",
+    "host": "campuscardb.cvua8k2qtxyu.us-east-1.rds.amazonaws.com",
     "dialect": "postgres"
   },
   "production": {
     "username": "postgres",
-    "password": "campusCarForFast",
-    "database": "campusCarDatabase",
-    "host": "campuscar.cvua8k2qtxyu.us-east-1.rds.amazonaws.com",
+    "password": "campuscarForFast",
+    "database": "campuscar",
+    "host": "campuscardb.cvua8k2qtxyu.us-east-1.rds.amazonaws.com",
     "dialect": "postgres"
   }
 }

@@ -5,7 +5,7 @@ dotenv.config();
 const sequelize = new Sequelize(process.env.DB_ENVIRONMENT ,{
 // const sequelize = new Sequelize(process.env.DATABASE_URL ,{
     //host: 'localhost',
-    dialect:  'postgres',
+    // dialect:  'postgres',
     define: {
         freezeTableName: true,
         underscored: true,
