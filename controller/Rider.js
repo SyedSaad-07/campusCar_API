@@ -10,8 +10,8 @@ const showRiderProfile = async(req, res) => {
     const showRider = await Rider.findOne({ where: { UserId: user.id } });
         if(!showRider){
             return res.status(401).json({
-                data: null
-                // "message" : "Not Registered as Rider",
+                data: null,
+                "message" : "Not Registered as Rider",
             });
         }
         else{
@@ -54,7 +54,7 @@ const addVehicle = async(req, res) => {
             const isVehicle = await vehicle.findOne({ where: { v_number: v_number } })
             if (isVehicle) {
                 return res.status(400).json({
-                    "message" : "This Vehicle is already registered by anOther person",
+                    "message" : "This Vehicle is already registered by someone",
                 });
                 
             }
@@ -124,28 +124,28 @@ const updateRiderProfile = async(req, res) => {
 
 
         const isVehicle = await vehicle.findOne({ where: { v_number: v_number } });
-        const isAlreadtThere = await Rider.findOne({ where: { vehicleId: isVehicle.id, UserId: user.id } });
-        if (isVehicle && !isAlreadtThere) {
+        // const isAlreadtThere = await Rider.findOne({ where: { vehicleId: isVehicle.id, UserId: user.id } });
+        if (isVehicle) {
             return res.status(400).json({
-                "message" : "This Vehicle is already registered by anOther person",
+                "message" : "This Vehicle is already registered by someone",
             });
         }
 
-        const newrider = await Rider.findOne({ where: { UserId: user.id } });
-        if (!newrider) {
-            return res.status(400).json({
-                "message" : "Data is null try to add data first",
-            });
-        }
+        // const newrider = await Rider.findOne({ where: { UserId: user.id } });
+        // if (!newrider) {
+        //     return res.status(400).json({
+        //         "message" : "Data is null try to add data first",
+        //     });
+        // }
             
         await vehicle.update({ v_name, v_number, v_type, v_color, noOfSeats, fuelAverage },{
             where:{
-                id: newrider.vehicleId
+                id: isExist.vehicleId
             },
         });    
 
-        vehicleDetails = await vehicle.findOne({ where: { v_number: v_number } });
-        riderDetails = await Rider.findOne({ where: { vehicleId: vehicleDetails.id } });
+        const vehicleDetails = await vehicle.findOne({ where: { v_number: v_number } });
+        const riderDetails = await Rider.findOne({ where: { vehicleId: vehicleDetails.id } });
         
         await vehicleDetails.save();
         await riderDetails.save();
@@ -164,7 +164,7 @@ const updateRiderProfile = async(req, res) => {
             });
 
     }catch(error){
-        return res.status(401).send({"status":"failed","message":error})
+        return res.status(401).send({"status":"failed","message":"Unauthorized User"})
     }
 
 }
