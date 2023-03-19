@@ -164,7 +164,7 @@ const updateRiderProfile = async(req, res) => {
             });
 
     }catch(error){
-        return res.status(401).send({"status":"failed","message":"Unauthorized User"})
+        return res.status(401).send({"status":"failed","message":error})
     }
 
 }
