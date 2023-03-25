@@ -1,5 +1,7 @@
-const { User , vehicle, Rider, Ride } = require('../models');
+const { User , vehicle, Rider, Ride, RideRequest } = require('../models');
 const  bcrypt  =  require("bcrypt");
+const Sequelize = require('sequelize');
+const { all } = require('../router/Rider');
 
 // app.get('/showRiderProfile', async(req, res) => {
 const showRiderProfile = async(req, res) => {
@@ -186,7 +188,7 @@ const offerRide = async(req, res) => {
         
         if(!user){
             return res.status(401).json({
-                "message" : "Email is not regstered"
+                "message" : "Email is not registered"
             })
         }
 
@@ -221,7 +223,42 @@ const offerRide = async(req, res) => {
     }
 }
 
-// app.get('/getAllRides', async(req, res) => {
+const bookRide = async(req, res) =>{
+    const {id, email} = req.query;
+ 
+    try {
+ 
+     const user = await User.findOne({ where: { email: email } });
+         if(!user){
+             return res.status(401).json({
+                 "message" : "Email is not regstered"
+             })
+         }
+ 
+         if (user.contactNo == null || user.CNIC == null) {
+             return res.status(400).json({
+                 "message" : "Try to complete your User profile first.",
+             });
+         }
+ 
+         await User.update({userType:"Passenger"},{ where: { email: email } });
+ 
+         const updatedUser = await User.findOne({ where: { email: email } });
+         await updatedUser.save();
+ 
+         const requestedRide = await RideRequest.create({RideId: id});
+         await requestedRide.save();
+ 
+         return res.status(200).json({
+             'message':'Ride request is successfully Done!'
+         })
+ 
+     } catch (error) {
+         res.status(500).send({"status":error});    
+     }
+ 
+ }
+
 const getAllRides = async(req, res) => {
 
     const riders = await Rider.findAll({
@@ -234,7 +271,12 @@ const getAllRides = async(req, res) => {
 
     const rides = await Ride.findAll({
         where:{Status:'Not Completed'},
-        attributes: ['id', 'pickUpAddres', 'dropOfAddress','fair','dateTime', 'RiderId'],
+        attributes: [
+            'id', 'pickUpAddres', 'dropOfAddress','fair','dateTime',
+            [Sequelize.fn('DATE', Sequelize.col("dateTime")),"date"],
+            //   "%d-%m-%Y %H:%i:%s"
+            'RiderId','Status'
+        ],
         include:[{
             model: Rider,
             attributes: ['id', 'UserId', 'vehicleId'],
@@ -245,8 +287,7 @@ const getAllRides = async(req, res) => {
             }]
 
         }]
-
-    });
+});
 
 
     if (rides) {
@@ -261,7 +302,21 @@ const getAllRides = async(req, res) => {
 }
 
 
-// app.delete('/deleteRide', async(req, res) => {
+const myRides = async(req, res) => {
+
+    const allRides = await RideRequest.findAll({
+        // attributes: { exclude: ['bookingStatus'] }
+        // ['id',
+        // 'createdAt',
+        // 'updatedAt',
+        // 'RiderId']
+    });
+    res.status(200).json({
+        data:allRides
+    })
+
+}
+
 const deleteRide = async(req, res) => {
 
     const {email,id} = req.query;
@@ -291,11 +346,14 @@ const deleteRide = async(req, res) => {
     }
     
 }
+
 module.exports = {
     showRiderProfile,
     addVehicle,
     updateRiderProfile,
     deleteRide,
     offerRide,
-    getAllRides
+    getAllRides,
+    bookRide,
+    myRides
 };
