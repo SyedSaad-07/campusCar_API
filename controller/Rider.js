@@ -301,7 +301,7 @@ const getAllRides = async(req, res) => {
     // });
 }
 
-
+// ignore for NOW
 const myRides = async(req, res) => {
 
     const allRides = await RideRequest.findAll({
