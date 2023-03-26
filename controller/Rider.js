@@ -1,7 +1,6 @@
 const { User , vehicle, Rider, Ride, RideRequest } = require('../models');
 const  bcrypt  =  require("bcrypt");
 const Sequelize = require('sequelize');
-const { all } = require('../router/Rider');
 
 // app.get('/showRiderProfile', async(req, res) => {
 const showRiderProfile = async(req, res) => {
@@ -175,7 +174,7 @@ const updateRiderProfile = async(req, res) => {
 // app.post('/offerRide', async(req, res) => {
 const offerRide = async(req, res) => {
 
-    const {email, pickUpAdd, dropOffAdd, description, fair,time, availableSeats} = req.query;
+    const {email, pickUpAdd, dropOffAdd, wayPoint1, wayPoint2, description, fair,time, availableSeats} = req.query;
 
     if (pickUpAdd == dropOffAdd) {
         return res.status(400).json({
@@ -210,7 +209,7 @@ const offerRide = async(req, res) => {
         vehicleDetails = await vehicle.findOne({ where: { id: isPresent.vehicleId } });
         vehicleDetails.save()
         // return res.status(401).json({"message":"Correct API"});
-        const curr_Ride = await Ride.create({pickUpAddres:pickUpAdd, dropOfAddress:dropOffAdd, description:description, fair:fair, dateTime:time, RiderId:isPresent.id});
+        const curr_Ride = await Ride.create({pickUpAddres:pickUpAdd, dropOfAddress:dropOffAdd, description:description, fair:fair, dateTime:time, RiderId:isPresent.id, wayPoint1:wayPoint1, wayPoint2:wayPoint2});
         await curr_Ride.save()
         return res.status(200).json({
             data:curr_Ride
@@ -275,7 +274,7 @@ const getAllRides = async(req, res) => {
             'id', 'pickUpAddres', 'dropOfAddress','fair','dateTime',
             [Sequelize.fn('DATE', Sequelize.col("dateTime")),"date"],
             //   "%d-%m-%Y %H:%i:%s"
-            'RiderId','Status'
+            'RiderId','Status','wayPoint1','wayPoint2'
         ],
         include:[{
             model: Rider,
