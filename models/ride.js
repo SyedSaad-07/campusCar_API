@@ -46,6 +46,18 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       defaultValue:'Not Completed',
       allowNull:false
+    },
+    wayPoint1:{
+      allowNull: true,
+      type: DataTypes.STRING
+    },
+    wayPoint2:{
+      allowNull: true,
+      type: DataTypes.STRING
+    },
+    availableSeats:{
+      type: DataTypes.INTEGER,
+      allowNull: true
     }
   }, {
     sequelize,

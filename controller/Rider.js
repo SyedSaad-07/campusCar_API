@@ -199,7 +199,7 @@ const offerRide = async(req, res) => {
 
         const isPresent = await Rider.findOne({where: {UserId:user.id}})
         if (!isPresent) {
-            return res.status(401).json({"message":"You are not registered as a Rider"});
+            return res.status(401).json({"message":"You are not registered as a Rider, try to add Vehicle details first"});
         }
         await vehicle.update({ availableSeats: availableSeats },{
             where:{
@@ -209,7 +209,7 @@ const offerRide = async(req, res) => {
         vehicleDetails = await vehicle.findOne({ where: { id: isPresent.vehicleId } });
         vehicleDetails.save()
         // return res.status(401).json({"message":"Correct API"});
-        const curr_Ride = await Ride.create({pickUpAddres:pickUpAdd, dropOfAddress:dropOffAdd, description:description, fair:fair, dateTime:time, RiderId:isPresent.id, wayPoint1:wayPoint1, wayPoint2:wayPoint2});
+        const curr_Ride = await Ride.create({pickUpAddres:pickUpAdd, dropOfAddress:dropOffAdd, description:description, fair:fair, dateTime:time, RiderId:isPresent.id, wayPoint1:wayPoint1, wayPoint2:wayPoint2,availableSeats:availableSeats});
         await curr_Ride.save()
         return res.status(200).json({
             data:curr_Ride
@@ -246,7 +246,7 @@ const bookRide = async(req, res) =>{
          await updatedUser.save();
  
          const requestedRide = await RideRequest.create({RideId: id});
-         await requestedRide.save();
+         await requestedRide.save();         
  
          return res.status(200).json({
              'message':'Ride request is successfully Done!'
@@ -260,12 +260,12 @@ const bookRide = async(req, res) =>{
 
 const getAllRides = async(req, res) => {
 
-    const riders = await Rider.findAll({
-        attributes: ['id', 'UserId', 'vehicleId'],
-        include:[{
-            model: User,
-            attributes: ['fullName', 'email', 'contactNo']}],
-    })
+    // const riders = await Rider.findAll({
+    //     attributes: ['id', 'UserId', 'vehicleId'],
+    //     include:[{
+    //         model: User,
+    //         attributes: ['fullName', 'email', 'contactNo']}],
+    // })
 
 
     const rides = await Ride.findAll({
@@ -274,7 +274,7 @@ const getAllRides = async(req, res) => {
             'id', 'pickUpAddres', 'dropOfAddress','fair','dateTime',
             [Sequelize.fn('DATE', Sequelize.col("dateTime")),"date"],
             //   "%d-%m-%Y %H:%i:%s"
-            'RiderId','Status','wayPoint1','wayPoint2'
+            'RiderId','Status','wayPoint1','wayPoint2','availableSeats'
         ],
         include:[{
             model: Rider,

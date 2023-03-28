@@ -20,6 +20,11 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       type: DataTypes.INTEGER
     },
+    bookingStatus:{
+      type: DataTypes.STRING,
+        defaultValue:'Pending',
+        allowNull:false
+    }
   }, {
     sequelize,
     modelName: 'RideRequest',
