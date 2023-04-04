@@ -201,6 +201,14 @@ const offerRide = async(req, res) => {
         if (!isPresent) {
             return res.status(401).json({"message":"You are not registered as a Rider, try to add Vehicle details first"});
         }
+
+// yahan s kal krna ha...
+        const findRide = await Ride.findOne({where:{RiderId:isPresent.id}})
+        if (findRide.Status=='Not Completed') {
+            return res.status(400).json({
+                "message" : "Try to complete your first ride before posting another.",
+            });
+        }
         // await vehicle.update({ availableSeats: availableSeats },{
         //     where:{
         //         id: isPresent.vehicleId

@@ -41,10 +41,6 @@ module.exports = (sequelize, DataTypes) => {
       type:DataTypes.INTEGER,
       allowNull:false 
     },
-    availableSeats: {
-      type:DataTypes.INTEGER,
-      allowNull:true 
-    },
     fuelAverage: {
       type:DataTypes.FLOAT,
       allowNull:false 
