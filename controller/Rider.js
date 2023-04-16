@@ -1,7 +1,7 @@
 const { User , vehicle, Rider, Ride, RideRequest } = require('../models');
 const  bcrypt  =  require("bcrypt");
 const Sequelize = require('sequelize');
-const {DataTypes} = require('sequelize');
+const {DataTypes,Op} = require('sequelize');
 // app.get('/showRiderProfile', async(req, res) => {
 const showRiderProfile = async(req, res) => {
 
@@ -253,11 +253,18 @@ const bookRide = async(req, res) =>{
          const updatedUser = await User.findOne({ where: { email: email } });
          await updatedUser.save();
 
+         const findRide = await Ride.findOne({where:{id:id}});
+
+         if (findRide.availableSeats==0) {
+            return res.status(503).json({
+                "message" : "Seats full no more available seats for this ride.",
+            });
+         }
  
          const requestedRide = await RideRequest.create({RideId: id});
          await requestedRide.save();
 
-         const findRide = await Ride.findOne({where:{id:id}})
+        //  const findRide = await Ride.findOne({where:{id:id}})
          let seat = findRide.availableSeats - 1;
 
         await Ride.update({ availableSeats: seat},{
@@ -276,7 +283,7 @@ const bookRide = async(req, res) =>{
          res.status(500).send({"status":error});    
      }
  
- }
+}
 
 const getAllRides = async(req, res) => {
 
@@ -289,7 +296,10 @@ const getAllRides = async(req, res) => {
 
 
     const rides = await Ride.findAll({
-        where:{Status:'Not Completed'},
+        where:{
+            Status:'Not Completed',
+            [Op.not]:[{availableSeats:0}]
+        },
         attributes: [
             'id', 'pickUpAddres', 'dropOfAddress','fair','dateTime',
             [Sequelize.fn(Sequelize.DATE, Sequelize.col("dateTime")),"date"],

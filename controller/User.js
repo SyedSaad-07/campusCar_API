@@ -86,7 +86,10 @@ const showUserProfile = async(req, res) => {
 
     const {email} = req.query;
           
-    const user = await User.findOne({ where: { email: email } });
+    const user = await User.findOne(
+        { where: { email: email },
+        attributes: { exclude: ['password'] }}
+    );
     if (user) {
         return res.status(200).json({
             data: user
@@ -112,7 +115,7 @@ const updateUserProfile = async(req, res) => {
             {
             where: {
                 email: email
-            }
+            },attributes: { exclude: ['password'] }
             });
             const updatedUser = await User.findOne({ where: { email: email } });
 
