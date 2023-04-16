@@ -48,6 +48,15 @@ module.exports = (sequelize, DataTypes) => {
     userType:{
       type:DataTypes.STRING,
     },
+    address:{
+      type:DataTypes.STRING,
+    },
+    wayPoint1:{
+      type:DataTypes.STRING
+    },
+    wayPoint2:{
+      type:DataTypes.STRING
+    },
   }, {
     sequelize,
     modelName: 'User',
