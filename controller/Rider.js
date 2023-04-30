@@ -192,7 +192,7 @@ const offerRide = async(req, res) => {
             })
         }
 
-        if (user.contactNo == null || user.CNIC == null) {
+        if (user.contactNo === "--" || user.CNIC === "--") {
             return res.status(400).json({
                 "message" : "Try to complete your User profile first.",
             });
@@ -205,14 +205,16 @@ const offerRide = async(req, res) => {
 
 // yahan s kal krna ha...
 
-// 
+
+//creating internal server-error 
         // const findRide = await Ride.findOne({where:{RiderId:isPresent.id}});
         // if (findRide.Status=='Not Completed') {
         //     return res.status(400).json({
         //         "message" : "Try to complete your first ride before posting another.",
         //     });
         // }
-// 
+//creating internal server-error
+
         // await vehicle.update({ availableSeats: availableSeats },{
         //     where:{
         //         id: isPresent.vehicleId
@@ -226,7 +228,7 @@ const offerRide = async(req, res) => {
         await curr_Ride.save();
         
         const vehicleData = await vehicle.findOne({where: {id: isPresent.vehicleId}});
-        const rideHistory = await RideHistory.create({email: email, fullName: user.fullName, contactNo: user.contactNo, vehicle: vehicleData.v_number, vehicleType:vehicleData.v_type, sourceAddress:pickUpAdd, destinationAddress: dropOffAdd, dateTime: time, RideStatus:'inProgress',rideAction:'offered Ride'});
+        const rideHistory = await RideHistory.create({email: email, fullName: user.fullName, contactNo: user.contactNo, vehicle: vehicleData.v_number, vehicleType:vehicleData.v_type, sourceAddress:pickUpAdd, destinationAddress: dropOffAdd, dateTime: time,rideAction:'offered Ride', RideStatus:'inProgress'});
         await rideHistory.save();
 
         return res.status(200).json({
