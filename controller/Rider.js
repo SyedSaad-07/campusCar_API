@@ -1,4 +1,4 @@
-const { User , vehicle, Rider, Ride, RideRequest } = require('../models');
+const { User , vehicle, Rider, Ride, RideRequest, RideHistory } = require('../models');
 const  bcrypt  =  require("bcrypt");
 const Sequelize = require('sequelize');
 const {DataTypes,Op} = require('sequelize');
@@ -219,6 +219,12 @@ const offerRide = async(req, res) => {
         // return res.status(401).json({"message":"Correct API"});
         const curr_Ride = await Ride.create({pickUpAddres:pickUpAdd, dropOfAddress:dropOffAdd, fair:fair, dateTime:time, RiderId:isPresent.id, wayPoint1:wayPoint1, wayPoint2:wayPoint2,availableSeats:availableSeats});
         await curr_Ride.save()
+        
+        const vehicleData = await vehicle.findOne({where: {id: isPresent.vehicleId}});
+
+        const rideHistory = await RideHistory.create({email: email, fullName: user.fullName, contactNo: user.contactNo, vehicle: vehicleData.v_number, vehicleType:vehicleData.v_type, sourceAddress:pickUpAdd, destinationAddress: dropOffAdd, dateTime: time, RideStatus:'inProgress'});
+        await rideHistory.save();
+
         return res.status(200).json({
             data:curr_Ride
         })
