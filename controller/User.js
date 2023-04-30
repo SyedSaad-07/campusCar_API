@@ -7,7 +7,7 @@ const SignUp = async(req, res) => {
 
     // const {email, pass} = req.body;
     const {email} = req.query;
-
+    const fullName = '--'; const contactNo = '--'; const CNIC = '--'; const gender = '--'; const userType = '--'; const address = '--'; const wayPoint1 = '--'; const wayPoint2 = '--';
     try {
             const user = await User.findOne({ where: { email:email } });
             if(user){
@@ -23,7 +23,7 @@ const SignUp = async(req, res) => {
                     //     res.send(error);
                     // }
                     // else{
-                        const newUser = await User.create({email:email });
+                        const newUser = await User.create({fullName, email:email, contactNo, CNIC, gender, userType, address, wayPoint1, wayPoint2 });
                         await newUser.save();
                     // }
                 // })
