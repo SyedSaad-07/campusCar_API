@@ -204,12 +204,15 @@ const offerRide = async(req, res) => {
         }
 
 // yahan s kal krna ha...
-        const findRide = await Ride.findOne({where:{RiderId:isPresent.id}})
-        if (findRide.Status=='Not Completed') {
-            return res.status(400).json({
-                "message" : "Try to complete your first ride before posting another.",
-            });
-        }
+
+// 
+        // const findRide = await Ride.findOne({where:{RiderId:isPresent.id}});
+        // if (findRide.Status=='Not Completed') {
+        //     return res.status(400).json({
+        //         "message" : "Try to complete your first ride before posting another.",
+        //     });
+        // }
+// 
         // await vehicle.update({ availableSeats: availableSeats },{
         //     where:{
         //         id: isPresent.vehicleId
@@ -218,20 +221,22 @@ const offerRide = async(req, res) => {
         // vehicleDetails = await vehicle.findOne({ where: { id: isPresent.vehicleId } });
         // vehicleDetails.save()
         // return res.status(401).json({"message":"Correct API"});
+
         const curr_Ride = await Ride.create({pickUpAddres:pickUpAdd, dropOfAddress:dropOffAdd, fair:fair, dateTime:time, RiderId:isPresent.id, wayPoint1:wayPoint1, wayPoint2:wayPoint2,availableSeats:availableSeats});
-        await curr_Ride.save()
+        await curr_Ride.save();
         
-        // const vehicleData = await vehicle.findOne({where: {id: isPresent.vehicleId}});
-        // const rideHistory = await RideHistory.create({email: email, fullName: user.fullName, contactNo: user.contactNo, vehicle: vehicleData.v_number, vehicleType:vehicleData.v_type, sourceAddress:pickUpAdd, destinationAddress: dropOffAdd, dateTime: time, RideStatus:'inProgress',rideAction:'offered Ride'});
-        // await rideHistory.save();
+        const vehicleData = await vehicle.findOne({where: {id: isPresent.vehicleId}});
+        const rideHistory = await RideHistory.create({email: email, fullName: user.fullName, contactNo: user.contactNo, vehicle: vehicleData.v_number, vehicleType:vehicleData.v_type, sourceAddress:pickUpAdd, destinationAddress: dropOffAdd, dateTime: time, RideStatus:'inProgress',rideAction:'offered Ride'});
+        await rideHistory.save();
 
         return res.status(200).json({
             data:curr_Ride
-        })
+        });
             
     } catch (error) {
-        res.status(500).send({"status":error,})
-
+        res.status(500).json({
+            "status":error
+        })
         // res.status(500).send({"status":"failed","message":"Unauthorized Rider"})
     }
 }
