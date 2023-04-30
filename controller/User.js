@@ -6,35 +6,35 @@ const  bcrypt  =  require("bcrypt");
 const SignUp = async(req, res) => {
 
     // const {email, pass} = req.body;
-    const {email, pass} = req.query;
+    const {email} = req.query;
 
     try {
             const user = await User.findOne({ where: { email:email } });
             if(user){
-                res.setHeader('Content-Type', 'application/json');
+                // res.setHeader('Content-Type', 'application/json');
                 return res.status(400).json({
                     "message" : "Email is already there, no need to register again."
                 });
             
             }else{
-                const salt = await bcrypt.genSalt(10);
-                bcrypt.hash(pass, salt, async (error, data) => {
+                // const salt = await bcrypt.genSalt(10);
+                // bcrypt.hash(pass, salt, async (error, data) => {
                     // if(error){
                     //     res.send(error);
                     // }
                     // else{
-                        const newUser = await User.create({email:email, password: data });
+                        const newUser = await User.create({email:email });
                         await newUser.save();
                     // }
-                })
-                res.setHeader('Content-Type', 'application/json');
+                // })
+                // res.setHeader('Content-Type', 'application/json');
                 return res.status(201).json({
                 "authenticate" : true
             });
         }
     
     } catch (error) {
-        res.setHeader('Content-Type', 'application/json');
+        // res.setHeader('Content-Type', 'application/json');
         return res.status(500).jsonp({
             "error" : "Internal Server error",
         });
