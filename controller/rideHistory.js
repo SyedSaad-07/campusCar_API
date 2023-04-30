@@ -4,14 +4,20 @@ const Sequelize = require('sequelize');
 const {DataTypes,Op} = require('sequelize');
 
 const inProgress = async(req, res) => {
-    const rideHistory = await RideHistory.findAll({where:{RideStatus:"inProgress"}});
+
+    const {email} = req.query;
+
+    const rideHistory = await RideHistory.findAll({where:{RideStatus:"inProgress", email:email}});
     return res.status(200).json({
         data: rideHistory
     });
 }
 
 const completedRides = async(req, res) => {
-    const rideHistory = await RideHistory.findAll({where:{RideStatus:"Completed"}});
+ 
+    const {email} = req.query;
+ 
+    const rideHistory = await RideHistory.findAll({where:{RideStatus:"Completed", email:email}});
     return res.status(200).json({
         data: rideHistory
     });
