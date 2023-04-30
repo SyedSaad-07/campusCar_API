@@ -221,10 +221,9 @@ const offerRide = async(req, res) => {
         const curr_Ride = await Ride.create({pickUpAddres:pickUpAdd, dropOfAddress:dropOffAdd, fair:fair, dateTime:time, RiderId:isPresent.id, wayPoint1:wayPoint1, wayPoint2:wayPoint2,availableSeats:availableSeats});
         await curr_Ride.save()
         
-        const vehicleData = await vehicle.findOne({where: {id: isPresent.vehicleId}});
-
-        const rideHistory = await RideHistory.create({email: email, fullName: user.fullName, contactNo: user.contactNo, vehicle: vehicleData.v_number, vehicleType:vehicleData.v_type, sourceAddress:pickUpAdd, destinationAddress: dropOffAdd, dateTime: time, RideStatus:'inProgress',rideAction:'offered Ride'});
-        await rideHistory.save();
+        // const vehicleData = await vehicle.findOne({where: {id: isPresent.vehicleId}});
+        // const rideHistory = await RideHistory.create({email: email, fullName: user.fullName, contactNo: user.contactNo, vehicle: vehicleData.v_number, vehicleType:vehicleData.v_type, sourceAddress:pickUpAdd, destinationAddress: dropOffAdd, dateTime: time, RideStatus:'inProgress',rideAction:'offered Ride'});
+        // await rideHistory.save();
 
         return res.status(200).json({
             data:curr_Ride
