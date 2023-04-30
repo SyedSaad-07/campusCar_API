@@ -55,6 +55,10 @@ module.exports = (sequelize, DataTypes) => {
     RideStatus:{
       allowNull:false,
       type:DataTypes.STRING
+    },
+    rideAction:{
+      allowNull:true,
+      type:DataTypes.STRING
     }    
   }, {
     sequelize,

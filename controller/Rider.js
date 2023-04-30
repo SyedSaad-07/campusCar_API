@@ -192,7 +192,7 @@ const offerRide = async(req, res) => {
             })
         }
 
-        if (user.contactNo === "--" || user.CNIC === "--") {
+        else if (user.contactNo === "--" || user.CNIC === "--") {
             return res.status(400).json({
                 "message" : "Try to complete your User profile first.",
             });
