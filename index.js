@@ -13,6 +13,7 @@ const app = express();
 const port = process.env.PORT || 8080;
 const userRoutes = require("./router/User");
 const riderRoutes = require("./router/Rider");
+const rideHistory = require("./router/rideHistory");
 
 // const limiter = rateLimit({
 //     windowMs: 1 * 60 * 1000, // 15 minutes
@@ -61,6 +62,7 @@ app.use(express.json());
 
 app.use("/userapi", userRoutes);
 app.use("/riderapi", riderRoutes);
+app.use("/rideHistory",rideHistory);
 
 app.listen(port, async () => {
     await sequelize.authenticate()

@@ -2,6 +2,7 @@ const { User , vehicle, Rider, Ride, RideRequest, RideHistory } = require('../mo
 const  bcrypt  =  require("bcrypt");
 const Sequelize = require('sequelize');
 const {DataTypes,Op} = require('sequelize');
+
 // app.get('/showRiderProfile', async(req, res) => {
 const showRiderProfile = async(req, res) => {
 
