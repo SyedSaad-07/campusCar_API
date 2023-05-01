@@ -247,29 +247,67 @@ const checkCompleteRide = async(req, res) => {
             })
         }
 
-        const isPresent = await Rider.findOne({where: {UserId:user.id}})
+        const isPresent = await Rider.findOne({where: {UserId:user.id}});
         if (!isPresent) {
             return res.status(401).json({"message":"You are not registered as a Rider, try to add Vehicle details first"});
         }
 
-        const findRide = await Ride.findOne({where:{RiderId:isPresent.id}});
-        let onlyDate = findRide.dateTime;
-        console.log(onlyDate);
-        onlyDate = onlyDate.split("T");
-        
-        if (findRide.Status == 'Not Completed' && onlyDate == date) {
-            return res.status(400).json({
-                "authentication":false
+        const findRide = await Ride.findOne(
+            {
+                order: [['id', 'ASC']],
+                attributes:[
+                    'id',
+                    'Status',
+                    [Sequelize.fn('to_char', Sequelize.col('dateTime'), 'YYYY-MM-DD'), 'dateTimeString'],
+                    // [Sequelize.fn(Sequelize.DATE, Sequelize.col("dateTime")),"date"], 
+                ],
+                where:{RiderId:isPresent.id, Status:'Not Completed'}
+            }
+            );
+
+            const findAllRide = await Ride.findAll(
+                {
+                    order: [['id', 'ASC']],
+                    attributes:[
+                        'id',
+                        'Status',
+                        [Sequelize.fn('to_char', Sequelize.col('dateTime'), 'YYYY-MM-DD'), 'dateTimeString'],
+                        // [Sequelize.fn(Sequelize.DATE, Sequelize.col("dateTime")),"date"], 
+                    ],
+                    where:{RiderId:isPresent.id, Status:'Not Completed'}
+                }
+                );
+
+        // console.log(findAllRide);
+        let count = 0;
+
+        if(findRide !== null){
+            findAllRide.forEach(ride => {
+
+                if (findRide.Status == 'Not Completed' && date == ride.dataValues.dateTimeString) {
+                    count = count + 1;
+                }
+
             });
-        }
-        else{
+            if (count !== 0) {
+                return res.status(400).json({
+                    "authentication":false,
+                });
+            }
+            
+            else{
+                return res.status(200).json({
+                    "authentication":true
+                })
+            }
+        }else{
             return res.status(200).json({
-                "authentication":true
+                "authentication":true,
             })
         }
         
     } catch (error) {
-        res.status(500).json({
+        res.status(500).send({
             "status":error
         })
     }
@@ -297,13 +335,6 @@ const bookRide = async(req, res) =>{
  
          const updatedUser = await User.findOne({ where: { email: email } });
          await updatedUser.save();
-        
-
-        //  if (findRide.availableSeats==0) {
-        //     return res.status(503).json({
-        //         "message" : "Seats full no more available seats for this ride.",
-        //     });
-        //  }
 
 
          const requestedRide = await RideRequest.create({RideId: id});
