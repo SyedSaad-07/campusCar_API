@@ -227,10 +227,51 @@ const offerRide = async(req, res) => {
         });
             
     } catch (error) {
-        res.status(500).json({
+        res.status(500).send({
             "status":error
         })
         // res.status(500).send({"status":"failed","message":"Unauthorized Rider"})
+    }
+}
+
+const checkCompleteRide = async(req, res) => {
+
+    const {email, date} = req.query;
+
+    try {
+        const user = await User.findOne({ where: { email: email } });
+        
+        if(!user){
+            return res.status(401).json({
+                "message" : "Email is not registered"
+            })
+        }
+
+        const isPresent = await Rider.findOne({where: {UserId:user.id}})
+        if (!isPresent) {
+            return res.status(401).json({"message":"You are not registered as a Rider, try to add Vehicle details first"});
+        }
+
+        const findRide = await Ride.findOne({where:{RiderId:isPresent.id}});
+        let onlyDate = findRide.dateTime;
+        console.log(onlyDate);
+        onlyDate = onlyDate.split("T");
+        
+        if (findRide.Status == 'Not Completed' && onlyDate == date) {
+            return res.status(400).json({
+                "authentication":false
+            });
+        }
+        else{
+            return res.status(200).json({
+                "authentication":true
+            })
+        }
+        
+    } catch (error) {
+        res.status(500).json({
+            "status":error
+        })
     }
 }
 
@@ -410,5 +451,6 @@ module.exports = {
     getAllRides,
     bookRide,
     myRides,
-    rideCompletion
+    rideCompletion,
+    checkCompleteRide
 };
