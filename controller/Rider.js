@@ -268,6 +268,7 @@ const bookRide = async(req, res) =>{
          const requestedRide = await RideRequest.create({RideId: id});
          await requestedRide.save();
 
+         const findRide = await Ride.findOne({where:{id:id}});
          let seat = findRide.availableSeats - 1;
 
         await Ride.update({ availableSeats: seat},{
@@ -275,7 +276,7 @@ const bookRide = async(req, res) =>{
                 id: id
             },
         });
-        const findRide = await Ride.findOne({where:{id:id}});
+        
         await findRide.save();
         // const isPresent = await Rider.findOne({where: {UserId:user.id}});
         // const vehicleData = await vehicle.findOne({where: {id: isPresent.vehicleId}});
