@@ -278,7 +278,7 @@ const bookRide = async(req, res) =>{
         });
         
         await findRide.save();
-        const isPresent = await Rider.findOne({where: {UserId:user.id}});
+        const isPresent = await Rider.findOne({where: {id:findRide.RiderId}});
         const vehicleData = await vehicle.findOne({where: {id: isPresent.vehicleId}});
 
         const rideHistory = await RideHistory.create({email: email, fullName: user.fullName, contactNo: user.contactNo, vehicle: vehicleData.v_number, vehicleType:vehicleData.v_type, sourceAddress:findRide.pickUpAddres, destinationAddress: findRide.dropOfAddress, dateTime: findRide.dateTime, RideStatus:'inProgress',rideAction:'booked Ride'});
@@ -289,7 +289,7 @@ const bookRide = async(req, res) =>{
          })
  
      } catch (error) {
-         res.status(500).send({"status":error});    
+         res.status(500).json({"status":error});    
      }
  
 }
