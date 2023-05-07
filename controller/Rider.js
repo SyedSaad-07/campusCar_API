@@ -437,8 +437,19 @@ const deleteRide = async(req, res) => {
 
     try {
         const user = await User.findOne({ where: { email: email } });
+        if(!user){
+            return res.status(401).json({
+                "message" : "Email is not regstered"
+            })
+        }
         const toDeleteRider = await Rider.findOne({ where: { UserId: user.id } });
-        
+
+        if (!toDeleteRider) {
+            return res.status(400).json({
+                "message" : "Rider doesn't Exist",
+            });
+        }
+
         const findRide = await Ride.findOne({where: {RiderId:toDeleteRider.id, id:id}});
 
         if (!findRide) {
@@ -447,10 +458,20 @@ const deleteRide = async(req, res) => {
             });
         }
 
-        const deleteRequest = await RideRequest.destroy({where: {RideId:toDeleteRider.id}})
-        const deleteRide = await Ride.destroy({where: {RiderId:toDeleteRider.id, id:id}});
-        Ride.save();
-        RideRequest.save();
+        const allRideRequest = await RideRequest.findAll({where: {RideId:findRide.id}});
+        console.log(allRideRequest);
+
+        for (let i = 0; i < allRideRequest.length; i++) {
+            await RideRequest.update({bookingStatus:"Cancelled by Rider"},{where: {RideId:findRide.id}})
+        }
+
+
+        // const deleteRequest = await RideRequest.destroy({where: {RideId:toDeleteRider.id}})
+        await Ride.update({Status:"Cancelled"},{where: {RiderId:toDeleteRider.id, id:id}});
+        
+        // await RideRequest.save();
+        // await Ride.save();   
+
         return res.status(200).json({
             "message" : "Ride Deleted Successfully",
         });
