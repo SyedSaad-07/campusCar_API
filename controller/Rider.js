@@ -203,17 +203,12 @@ const offerRide = async(req, res) => {
             return res.status(401).json({"message":"You are not registered as a Rider, try to add Vehicle details first"});
         }
 
-// yahan s kal krna ha...
-
-
-//creating internal server-error 
         // const findRide = await Ride.findOne({where:{RiderId:isPresent.id}});
         // if (findRide.Status=='Not Completed') {
         //     return res.status(400).json({
         //         "message" : "Try to complete your first ride before posting another.",
         //     });
         // }
-//creating internal server-error
 
         const curr_Ride = await Ride.create({pickUpAddres:pickUpAdd, dropOfAddress:dropOffAdd, fair:fair, dateTime:time, RiderId:isPresent.id, wayPoint1:wayPoint1, wayPoint2:wayPoint2,availableSeats:availableSeats});
         await curr_Ride.save();
@@ -368,13 +363,6 @@ const bookRide = async(req, res) =>{
 
 const getAllRides = async(req, res) => {
 
-    // const riders = await Rider.findAll({
-    //     attributes: ['id', 'UserId', 'vehicleId'],
-    //     include:[{
-    //         model: User,
-    //         attributes: ['fullName', 'email', 'contactNo']}],
-    // })
-
 
     const rides = await Ride.findAll({
         where:{
@@ -452,11 +440,13 @@ const deleteRide = async(req, res) => {
         const toDeleteRider = await Rider.findOne({ where: { UserId: user.id } });
         
         const findRide = await Ride.findOne({where: {RiderId:toDeleteRider.id, id:id}});
+
         if (!findRide) {
             return res.status(400).json({
                 "message" : "Ride doesn't Exist",
             });
         }
+
         const deleteRequest = await RideRequest.destroy({where: {RideId:toDeleteRider.id}})
         const deleteRide = await Ride.destroy({where: {RiderId:toDeleteRider.id, id:id}});
         Ride.save();
