@@ -459,7 +459,6 @@ const deleteRide = async(req, res) => {
         }
 
         const allRideRequest = await RideRequest.findAll({where: {RideId:findRide.id}});
-        console.log(allRideRequest);
 
         for (let i = 0; i < allRideRequest.length; i++) {
             await RideRequest.update({bookingStatus:"Cancelled by Rider"},{where: {RideId:findRide.id}})
