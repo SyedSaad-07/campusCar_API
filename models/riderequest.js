@@ -24,6 +24,14 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
         defaultValue:'Pending',
         allowNull:false
+    },
+    UserId:{
+      type: DataTypes.INTEGER,
+      autoIncrement:false
+    },
+    Accepted_fare:{
+      type: DataTypes.STRING,
+      allowNull:true
     }
   }, {
     sequelize,

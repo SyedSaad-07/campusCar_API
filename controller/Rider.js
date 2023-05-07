@@ -332,10 +332,14 @@ const bookRide = async(req, res) =>{
          await updatedUser.save();
 
 
-         const requestedRide = await RideRequest.create({RideId: id});
-         await requestedRide.save();
+        //  const requestedRide = await RideRequest.create({RideId: id,UserId:user.id});
+        //  await requestedRide.save();
 
          const findRide = await Ride.findOne({where:{id:id}});
+         
+         const requestedRide = await RideRequest.create({RideId: id,UserId:user.id, Accepted_fare: findRide.fair});
+         await requestedRide.save();
+         
          let seat = findRide.availableSeats - 1;
 
         await Ride.update({ availableSeats: seat},{
