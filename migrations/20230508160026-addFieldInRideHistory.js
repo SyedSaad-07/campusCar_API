@@ -4,9 +4,9 @@
 module.exports = {
   async up (queryInterface, Sequelize) {
     return Promise.all([
-      queryInterface.addColumn('RideRequests','Accepted_fare',{
-        type: Sequelize.STRING,
-        allowNull:true
+      queryInterface.addColumn('RideHistories','RideId',{
+        type:Sequelize.INTEGER,
+        allowNull: true
       })
     ])
     /**
