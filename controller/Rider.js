@@ -144,7 +144,9 @@ const updateRiderProfile = async(req, res) => {
             where:{
                 id: isExist.vehicleId
             },
-        });    
+        });
+
+        await User.update({userType:"Rider"},{ where: { email: email } });
 
         const vehicleDetails = await vehicle.findOne({ where: { v_number: v_number } });
         const riderDetails = await Rider.findOne({ where: { vehicleId: vehicleDetails.id } });
@@ -214,6 +216,9 @@ const offerRide = async(req, res) => {
         await curr_Ride.save();
         
         const vehicleData = await vehicle.findOne({where: {id: isPresent.vehicleId}});
+
+        await User.update({userType:"Rider"},{ where: { email: email } });
+
         const rideHistory = await RideHistory.create({email: email, fullName: user.fullName, contactNo: user.contactNo, vehicle: vehicleData.v_number, vehicleType:vehicleData.v_type, sourceAddress:pickUpAdd, destinationAddress: dropOffAdd, dateTime: time,rideAction:'offered Ride', RideStatus:'inProgress'});
         await rideHistory.save();
 
@@ -423,16 +428,52 @@ const rideCompletion = async(req, res) => {
     
     const {email, id} = req.query;
 
-    await Ride.update({ Status: 'Completed'},{
-        where:{
-            id: id
-        },
-    });
-    const findRide = await Ride.findOne({where:{id:id}})
-    findRide.save();
-    res.status(200).json({
-        message:'Ride Completed'
-    })
+    try {
+        const user = await User.findOne({ where: { email: email } });
+        if(!user){
+            return res.status(401).json({
+                "message" : "Email is not regstered"
+            })
+        }
+        const findRider = await Rider.findOne({ where: { UserId: user.id } });
+
+        if (!findRider) {
+            return res.status(400).json({
+                "message" : "Rider doesn't Exist",
+            });
+        }
+
+        const findRide = await Ride.findOne({where: {RiderId:findRider.id, id:id}});
+        if (!findRide) {
+            return res.status(400).json({
+                "message" : "Ride doesn't Exist",
+            });
+        }
+
+        if(findRide.Status === "Completed"){
+            return res.status(400).json({
+                "message" : "Ride already Completed",
+            });
+        }
+
+        const allRideRequest = await RideRequest.findAll({where: {RideId:findRide.id}});
+
+        for (let i = 0; i < allRideRequest.length; i++) {
+            await RideRequest.update({bookingStatus:"Completed"},{where: {RideId:findRide.id}})
+        }
+
+        await Ride.update({Status:"Completed"},{where: {RiderId:findRider.id, id:id}});
+
+        res.status(200).json({
+            message:'Ride Completed'
+        })
+
+    } catch (error) {
+        return res.status(500).json({
+            "error" : error,
+        });
+    }
+    
 }
 
 const deleteRide = async(req, res) => {
@@ -462,6 +503,12 @@ const deleteRide = async(req, res) => {
             });
         }
 
+        if(findRide.Status === "Cancelled"){
+            return res.status(400).json({
+                "message" : "Ride already Cancelled",
+            });
+        }
+
         const allRideRequest = await RideRequest.findAll({where: {RideId:findRide.id}});
 
         for (let i = 0; i < allRideRequest.length; i++) {
@@ -486,6 +533,7 @@ const deleteRide = async(req, res) => {
     }
     
 }
+
 
 module.exports = {
     showRiderProfile,
