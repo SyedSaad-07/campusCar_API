@@ -2,44 +2,62 @@ const { User , vehicle, Rider, Ride, RideRequest, RideHistory } = require('../mo
 const  bcrypt  =  require("bcrypt");
 const Sequelize = require('sequelize');
 const {DataTypes,Op} = require('sequelize');
+const axios = require('axios');
+
 
 const inProgress = async(req, res) => {
 
     const {email} = req.query;
 
-    const rideHistory = await RideHistory.findAll({where:{
-        [Op.and]: [{RideStatus:"InProgress"}, {email:email}]
-    }
-    });
-
-    if (rideHistory.length !== 0) {
-        return res.status(200).json({
-            data: rideHistory
+    try {
+        const rideHistory = await RideHistory.findAll({where:{
+            [Op.and]: [{RideStatus:"InProgress"}, {email:email}]
+        }
         });
-    }else{
-        return res.status(404).json({
-            "message":"Not Found"
-        });                
+    
+        if (rideHistory.length !== 0) {
+            return res.status(200).json({
+                data: rideHistory
+            });
+        }else{
+            return res.status(404).json({
+                "message":"Not Found"
+            });                
+        }    
+    } catch (error) {
+        return res.status(500).json({
+            "message":error
+        })
     }
+
+    
 }
 
 const completedRides = async(req, res) => {
  
     const {email} = req.query;
 
-    const rideHistory = await RideHistory.findAll({where:{
-        [Op.and]: [{RideStatus:"Completed"}, {email:email}]
-    }
-    });
+    try {
 
-    if (rideHistory.length !== 0) {
-        return res.status(200).json({
-            data: rideHistory
+        const rideHistory = await RideHistory.findAll({where:{
+            [Op.and]: [{RideStatus:"Completed"}, {email:email}]
+        }
         });
-    }else{
-        return res.status(404).json({
-            "message":"Not Found"
-        });                
+    
+        if (rideHistory.length !== 0) {
+            return res.status(200).json({
+                data: rideHistory
+            });
+        }else{
+            return res.status(404).json({
+                "message":"Not Found"
+            });                
+        }
+        
+    } catch (error) {
+        return res.status(500).json({
+            "message":error
+        })
     }
     
 }
@@ -47,26 +65,112 @@ const completedRides = async(req, res) => {
 const cancelledRides = async(req, res) => {
  
     const {email} = req.query;
+    
+    try {
 
-    const rideHistory = await RideHistory.findAll({where:{
-        [Op.and]: [{RideStatus:"Cancelled"}, {email:email}]
-    }
-    });
-
-    if (rideHistory.length !== 0) {
-        return res.status(200).json({
-            data: rideHistory
+        const rideHistory = await RideHistory.findAll({where:{
+            [Op.and]: [{RideStatus:"Cancelled"}, {email:email}]
+        }
         });
-    }else{
-        return res.status(404).json({
-            "message":"Not Found"
-        });                
+    
+        if (rideHistory.length !== 0) {
+            return res.status(200).json({
+                data: rideHistory
+            });
+        }else{
+            return res.status(404).json({
+                "message":"Not Found"
+            });                
+        }
+        
+    } catch (error) {
+        return res.status(500).json({
+            "message":error
+        })
     }
     
 }
 
+const moreInfo = async(req, res) => {
+
+    const {email, id} = req.query;
+
+    try {    
+        const rideHistoryOfPartner = await RideHistory.findAll({where:{
+            [Op.and]: [{RideStatus:"InProgress"}, {rideAction:"booked Ride"}, {RideId:id}]
+        }
+        });
+        if (rideHistoryOfPartner.length !== 0) {
+            return res.status(200).json({
+                rideHistoryOfPartner
+            })
+
+        }else{
+            return res.status(404).json({
+                "message":"Not Found"
+            });   
+        }
+
+    } catch (error) {
+        return res.status(500).json({
+            "message":error
+        })        
+    }
+
+    // const response = await axios.get("http://localhost:5000/rideHistory/getAllinProgressRides/?email=k190338@nu.edu.pk");
+    // const statusCode = response.status;
+    // const gotRes = response.data.data;
+
+    // return res.status(200).json({
+    //     statusCode,
+    //     gotRes,
+    //     "message":"OK"
+    // })
+}
+
+const moreInfoForPartner = async(req, res) => {
+
+    const {email, id} = req.query;
+
+    try {    
+        const rideHistoryOfPartner = await RideHistory.findOne({where:{
+            [Op.and]: [{RideStatus:"InProgress"}, {rideAction:"offered Ride"},{RideId:id}]
+        }
+
+        });
+        if (rideHistoryOfPartner.length !== 0) {
+            return res.status(200).json({
+                rideHistoryOfPartner
+            })
+
+        }else{
+            return res.status(404).json({
+                "message":"Not Found"
+            });   
+        }
+
+    } catch (error) {
+        return res.status(500).json({
+            "message":error
+        })        
+    }
+
+    // const response = await axios.get("http://localhost:5000/rideHistory/getAllinProgressRides/?email=k190338@nu.edu.pk");
+    // const statusCode = response.status;
+    // const gotRes = response.data.data;
+
+    // return res.status(200).json({
+    //     statusCode,
+    //     gotRes,
+    //     "message":"OK"
+    // })
+}
+
+
 module.exports = {
     inProgress,
     completedRides,
-    cancelledRides
+    cancelledRides,
+    moreInfo,
+    moreInfoForPartner
 }

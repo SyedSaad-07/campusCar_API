@@ -659,6 +659,61 @@ const checkCompletedBookRide = async(req, res) => {
     }
 }
 
+// const rideAcceptance = async(req, res) => {
+
+//     const {status} = req.query;
+
+//     try {
+//         if (status === true) {
+//             res.status(200).json({
+//                 flag : true
+//             })
+//         }else{
+//             res.status(200).json({
+//                 flag : false
+//             })
+//         }
+//     } catch (error) {
+//         res.status(500).json({
+//             "message":error
+//         })        
+//     }
+
+// }
+
+const fareNegotiate = async(req, res) => {
+    const {id, email} = req.query;
+
+    try {
+        const user = await User.findOne({ where: { email: email } });
+         if(!user){
+             return res.status(401).json({
+                 "message" : "Email is not regstered"
+             })
+         }
+ 
+         if (user.contactNo  === "--" || user.CNIC  === "--") {
+             return res.status(400).json({
+                 "message" : "Try to complete your User profile first.",
+             });
+         }
+
+         const findRide = await Ride.findOne({where:{id:id}});
+         const isPresent = await Rider.findOne({where: {id:findRide.RiderId}});
+         const rider = await User.findOne({ where: { id: isPresent.UserId } });
+
+         return res.status(200).json({
+            data1:user,
+            data2:rider
+         })
+
+    } catch (error) {
+        res.status(500).json({
+            "message":error
+        })
+    }
+}
+
 module.exports = {
     showRiderProfile,
     addVehicle,
@@ -671,5 +726,6 @@ module.exports = {
     rideCompletion,
     checkCompleteRide,
     deleteRideByUser,
-    checkCompletedBookRide
+    checkCompletedBookRide,
+    fareNegotiate
 };
