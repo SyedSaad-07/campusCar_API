@@ -8,7 +8,7 @@ const inProgress = async(req, res) => {
     const {email} = req.query;
 
     const rideHistory = await RideHistory.findAll({where:{
-        [Op.and]: [{RideStatus:"inProgress"}, {email:email}]
+        [Op.and]: [{RideStatus:"InProgress"}, {email:email}]
     }
     });
 
