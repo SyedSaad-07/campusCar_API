@@ -219,7 +219,7 @@ const offerRide = async(req, res) => {
 
         await User.update({userType:"Rider"},{ where: { email: email } });
 
-        const rideHistory = await RideHistory.create({email: email, fullName: user.fullName, contactNo: user.contactNo, vehicle: vehicleData.v_number, vehicleType:vehicleData.v_type, sourceAddress:pickUpAdd, destinationAddress: dropOffAdd, dateTime: time,rideAction:'offered Ride', RideStatus:'inProgress',RideId:curr_Ride.id});
+        const rideHistory = await RideHistory.create({email: email, fullName: user.fullName, contactNo: user.contactNo, vehicle: vehicleData.v_number, vehicleType:vehicleData.v_type, sourceAddress:pickUpAdd, destinationAddress: dropOffAdd, dateTime: time,rideAction:'offered Ride', RideStatus:'inProgress',RideId:curr_Ride.id, fare:fair});
         await rideHistory.save();
 
         return res.status(200).json({
@@ -363,7 +363,7 @@ const bookRide = async(req, res) =>{
         const isPresent = await Rider.findOne({where: {id:findRide.RiderId}});
         const vehicleData = await vehicle.findOne({where: {id: isPresent.vehicleId}});
 
-        const rideHistory = await RideHistory.create({email: email, fullName: user.fullName, contactNo: user.contactNo, vehicle: vehicleData.v_number, vehicleType:vehicleData.v_type, sourceAddress:findRide.pickUpAddres, destinationAddress: findRide.dropOfAddress, dateTime: findRide.dateTime, RideStatus:'inProgress',rideAction:'booked Ride',RideId:findRide.id});
+        const rideHistory = await RideHistory.create({email: email, fullName: user.fullName, contactNo: user.contactNo, vehicle: vehicleData.v_number, vehicleType:vehicleData.v_type, sourceAddress:findRide.pickUpAddres, destinationAddress: findRide.dropOfAddress, dateTime: findRide.dateTime, RideStatus:'inProgress',rideAction:'booked Ride',RideId:findRide.id, fare: findRide.fair});
         await rideHistory.save();
  
         return res.status(200).json({

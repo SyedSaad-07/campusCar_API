@@ -63,7 +63,11 @@ module.exports = (sequelize, DataTypes) => {
     RideId:{
       type:DataTypes.INTEGER,
       allowNull: true
-    }    
+    },
+    fare:{
+      type: DataTypes.INTEGER,
+      allowNull:true
+    }
   }, {
     sequelize,
     modelName: 'RideHistory',
