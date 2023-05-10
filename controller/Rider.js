@@ -219,7 +219,7 @@ const offerRide = async(req, res) => {
 
         await User.update({userType:"Rider"},{ where: { email: email } });
 
-        const rideHistory = await RideHistory.create({email: email, fullName: user.fullName, contactNo: user.contactNo, vehicle: vehicleData.v_number, vehicleType:vehicleData.v_type, sourceAddress:pickUpAdd, destinationAddress: dropOffAdd, dateTime: time,rideAction:'offered Ride', RideStatus:'inProgress',RideId:curr_Ride.id, fare:fair});
+        const rideHistory = await RideHistory.create({email: email, fullName: user.fullName, contactNo: user.contactNo, vehicle: vehicleData.v_number, vehicleType:vehicleData.v_type, sourceAddress:pickUpAdd, destinationAddress: dropOffAdd, dateTime: time,rideAction:'offered Ride', RideStatus:'inProgress',RideId:curr_Ride.id, fare: fair});
         await rideHistory.save();
 
         return res.status(200).json({
