@@ -363,7 +363,7 @@ const bookRide = async(req, res) =>{
         const isPresent = await Rider.findOne({where: {id:findRide.RiderId}});
         const vehicleData = await vehicle.findOne({where: {id: isPresent.vehicleId}});
 
-        const rideHistory = await RideHistory.create({email: email, fullName: user.fullName, contactNo: user.contactNo, vehicle: vehicleData.v_number, vehicleType:vehicleData.v_type, sourceAddress:findRide.pickUpAddres, destinationAddress: findRide.dropOfAddress, dateTime: findRide.dateTime, RideStatus:'inProgress',rideAction:'booked Ride',RideId:findRide.id, fare: findRide.fair});
+        const rideHistory = await RideHistory.create({email: email, fullName: user.fullName, contactNo: user.contactNo, vehicle: vehicleData.v_number, vehicleType:vehicleData.v_type, sourceAddress:findRide.pickUpAddres, destinationAddress: findRide.dropOfAddress, dateTime: findRide.dateTime, RideStatus:'InProgress',rideAction:'booked Ride',RideId:findRide.id, fare: findRide.fair});
         await rideHistory.save();
  
         return res.status(200).json({
