@@ -1,8 +1,5 @@
 const { User , vehicle, Rider, Ride, RideRequest, RideHistory } = require('../models');
-const  bcrypt  =  require("bcrypt");
-const Sequelize = require('sequelize');
-const {DataTypes,Op} = require('sequelize');
-const axios = require('axios');
+const {Op} = require('sequelize');
 
 
 const inProgress = async(req, res) => {
@@ -29,8 +26,7 @@ const inProgress = async(req, res) => {
             "message":error
         })
     }
-
-    
+   
 }
 
 const completedRides = async(req, res) => {
@@ -138,6 +134,7 @@ const moreInfoForPartner = async(req, res) => {
         }
 
         });
+
         if (rideHistoryOfPartner.length !== 0) {
             return res.status(200).json({
                 rideHistoryOfPartner
@@ -172,5 +169,5 @@ module.exports = {
     completedRides,
     cancelledRides,
     moreInfo,
-    moreInfoForPartner
+    moreInfoForPartner,
 }

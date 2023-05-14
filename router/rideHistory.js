@@ -8,4 +8,5 @@ router.get('/getAllCompletedRides',completedRides);
 router.get("/getAllCancelledRides",cancelledRides);
 router.get("/moreInfo",moreInfo);
 router.get("/moreInfoForPartner",moreInfoForPartner);
+// router.get("/inProgressPassenger",inProgressAsPassenger);
 module.exports = router;
