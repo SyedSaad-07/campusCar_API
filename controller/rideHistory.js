@@ -1,6 +1,32 @@
 const { User , vehicle, Rider, Ride, RideRequest, RideHistory } = require('../models');
 const {Op} = require('sequelize');
 
+const riderInfo = async(req,res) =>{
+    const {id} = req.query;
+    try {
+        const fromRide = await Ride.findOne({where:{
+            id: id
+        }})
+        const Rid = fromRide.RiderId;
+
+        const fromRider = await Rider.findOne({where: {
+            id: Rid
+        }})
+
+        const Uid = fromRider.UserId;
+        const userData = await User.findOne({
+            where:{id:Uid},
+            attributes:['email','fullName']
+        })
+        return res.status(200).json({
+            data: userData,
+        })
+    } catch (error) {
+        return res.status(500).json({
+            "message": error
+        })
+    }
+}
 
 const inProgress = async(req, res) => {
 
@@ -11,6 +37,11 @@ const inProgress = async(req, res) => {
             [Op.and]: [{RideStatus:"InProgress"}, {email:email}]
         }
         });
+
+        // const rideHistoryBook = await RideHistory.findAll({where:{
+        //     [Op.and]: [{RideStatus:"InProgress"}, {rideAction:'booked Ride'}, {email:email}]
+        // }
+        // });
     
         if (rideHistory.length !== 0) {
             return res.status(200).json({
@@ -170,4 +201,5 @@ module.exports = {
     cancelledRides,
     moreInfo,
     moreInfoForPartner,
+    riderInfo
 }
