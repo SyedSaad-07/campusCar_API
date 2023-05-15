@@ -722,9 +722,7 @@ const fareNegotiate = async(req, res) => {
 const getFareNegotiation = async(req, res) => {
     
     const {id} = req.query;
-
-    try {
-        
+    try {        
         const allNegotiationRide = await Negotiation.findAll({where:{RideId: id}});
         return res.status(200).json({
             data: allNegotiationRide
