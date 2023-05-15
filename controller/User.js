@@ -174,13 +174,10 @@ const resetPassword = async (req, res) => {
 
 // create reusable transporter object using the default SMTP transport
 const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false,
-    requireTLS:false,
+    service:"gmail",
     auth: {
         user: 'fastcampuscar@gmail.com',
-        pass: 'campuscar200-19k'
+        pass: 'mcoadjpriihdnaef'
     },
 },(err) =>{
     console.log(err)
@@ -191,7 +188,7 @@ const transporter = nodemailer.createTransport({
 const sendEmail = async (to, subject, body) => {
     try {
         const mailOptions = {
-            from: 'fastcampuscar@gmail.com',
+            from: 'campus car <fastcampuscar@gmail.com>',
             to:to,
             subject:subject,
             html: body

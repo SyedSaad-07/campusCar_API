@@ -666,28 +666,6 @@ const checkCompletedBookRide = async(req, res) => {
     }
 }
 
-// const rideAcceptance = async(req, res) => {
-
-//     const {status} = req.query;
-
-//     try {
-//         if (status === true) {
-//             res.status(200).json({
-//                 flag : true
-//             })
-//         }else{
-//             res.status(200).json({
-//                 flag : false
-//             })
-//         }
-//     } catch (error) {
-//         res.status(500).json({
-//             "message":error
-//         })        
-//     }
-
-// }
-
 const fareNegotiate = async(req, res) => {
     const {id, email, fare} = req.query;
 
