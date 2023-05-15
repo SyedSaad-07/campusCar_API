@@ -1,4 +1,4 @@
-const { User , vehicle, Rider, Ride, RideRequest, RideHistory } = require('../models');
+const { User , vehicle, Rider, Ride, RideRequest, RideHistory, Negotiation } = require('../models');
 const  bcrypt  =  require("bcrypt");
 const Sequelize = require('sequelize');
 const {DataTypes,Op} = require('sequelize');
@@ -227,7 +227,7 @@ const offerRide = async(req, res) => {
         });
             
     } catch (error) {
-        res.status(500).send({
+        return res.status(500).send({
             "status":error
         })
         // res.status(500).send({"status":"failed","message":"Unauthorized Rider"})
@@ -307,7 +307,7 @@ const checkCompleteRide = async(req, res) => {
         }
         
     } catch (error) {
-        res.status(500).send({
+        return res.status(500).send({
             "status":error
         })
     }
@@ -381,36 +381,43 @@ const bookRide = async(req, res) =>{
 const getAllRides = async(req, res) => {
 
 
-    const rides = await Ride.findAll({
-        where:{
-            Status:'Not Completed',
-            [Op.not]:[{availableSeats:0}]
-        },
-        attributes: [
-            'id', 'pickUpAddres', 'dropOfAddress','fair','dateTime',
-            [Sequelize.fn(Sequelize.DATE, Sequelize.col("dateTime")),"date"],
-            //   "%d-%m-%Y %H:%i:%s"
-            'RiderId','Status','wayPoint1','wayPoint2','availableSeats'
-        ],
-        include:[{
-            model: Rider,
-            attributes: ['id', 'UserId', 'vehicleId'],
-            
+    try {
+        const rides = await Ride.findAll({
+            where:{
+                Status:'Not Completed',
+                [Op.not]:[{availableSeats:0}]
+            },
+            attributes: [
+                'id', 'pickUpAddres', 'dropOfAddress','fair','dateTime',
+                [Sequelize.fn(Sequelize.DATE, Sequelize.col("dateTime")),"date"],
+                //   "%d-%m-%Y %H:%i:%s"
+                'RiderId','Status','wayPoint1','wayPoint2','availableSeats'
+            ],
             include:[{
-                model:User,
-                attributes: ['id','fullName', 'email', 'contactNo']
+                model: Rider,
+                attributes: ['id', 'UserId', 'vehicleId'],
+                
+                include:[{
+                    model:User,
+                    attributes: ['id','fullName', 'email', 'contactNo']
+                }]
+    
             }]
-
-        }]
-});
-
-
-    if (rides) {
-        return res.status(200).json({
-            rides
+    });
+    
+    
+        if (rides) {
+            return res.status(200).json({
+                rides
+            });
+        }
+        
+    } catch (error) {
+        return res.status(500).json({
+            "error" : error,
         });
     }
-
+    
     // res.status(401).json({
     //     message:"User not present !"
     // });
@@ -426,7 +433,7 @@ const myRides = async(req, res) => {
         // 'updatedAt',
         // 'RiderId']
     });
-    res.status(200).json({
+    return res.status(200).json({
         data:allRides
     })
 
@@ -600,13 +607,13 @@ const deleteRideByUser = async(req,res) => {
             })    
         }
         else{
-            res.status(400).json({
+            return res.status(400).json({
                 "message": "Ride doesn't exist"
             })
         }
 
     } catch (error) {
-        res.status(500).json({
+        return res.status(500).json({
             "message":error
         })        
     }
@@ -638,22 +645,22 @@ const checkCompletedBookRide = async(req, res) => {
  
          if (findIfExist) {
             if (findUserInReqPending || findUserInReqComp) {
-                res.status(400).json({
+                return res.status(400).json({
                     authentication:false
                 })
              }else if (findUserInCanReq) {
-                res.status(200).json({
+                return res.status(200).json({
                     authentication:true
                 })
              }
          }else{
-            res.status(200).json({
+            return res.status(200).json({
                 authentication:true
             })
          }
         
     } catch (error) {
-        res.status(500).json({
+        return res.status(500).json({
             "message":error
         })
     }
@@ -682,7 +689,7 @@ const checkCompletedBookRide = async(req, res) => {
 // }
 
 const fareNegotiate = async(req, res) => {
-    const {id, email} = req.query;
+    const {id, email, fare} = req.query;
 
     try {
         const user = await User.findOne({ where: { email: email } });
@@ -698,20 +705,37 @@ const fareNegotiate = async(req, res) => {
              });
          }
 
-         const findRide = await Ride.findOne({where:{id:id}});
-         const isPresent = await Rider.findOne({where: {id:findRide.RiderId}});
-         const rider = await User.findOne({ where: { id: isPresent.UserId } });
+        const negotiate = await Negotiation.create({email: email, fullName: user.fullName, contactNo: user.contactNo, fare: fare, RideId: id});
+        negotiate.save();
 
          return res.status(200).json({
-            data1:user,
-            data2:rider
+            "message":"OK"
          })
 
     } catch (error) {
-        res.status(500).json({
+        return res.status(500).json({
             "message":error
         })
     }
+}
+
+const getFareNegotiation = async(req, res) => {
+    
+    const {id} = req.query;
+
+    try {
+        
+        const allNegotiationRide = await Negotiation.findAll({where:{id: id}});
+        return res.status(200).json({
+            data: allNegotiationRide
+        })
+
+    } catch (error) {
+        return res.status(500).json({
+            "message":error
+        })
+    }
+    
 }
 
 module.exports = {
@@ -727,5 +751,6 @@ module.exports = {
     checkCompleteRide,
     deleteRideByUser,
     checkCompletedBookRide,
-    fareNegotiate
+    fareNegotiate,
+    getFareNegotiation
 };
