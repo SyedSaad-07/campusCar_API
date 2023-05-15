@@ -725,7 +725,7 @@ const getFareNegotiation = async(req, res) => {
 
     try {
         
-        const allNegotiationRide = await Negotiation.findAll({where:{id: id}});
+        const allNegotiationRide = await Negotiation.findAll({where:{RideId: id}});
         return res.status(200).json({
             data: allNegotiationRide
         })
