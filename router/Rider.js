@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const {showRiderProfile, addVehicle, updateRiderProfile, deleteRide, offerRide, getAllRides, bookRide, myRides,rideCompletion, checkCompleteRide, deleteRideByUser, checkCompletedBookRide, fareNegotiate, getFareNegotiation, acceptFare, rejectFare} = require("../controller/Rider");
+const {showRiderProfile, addVehicle, updateRiderProfile, deleteRide, offerRide, getAllRides, bookRide, myRides,rideCompletion, checkCompleteRide, deleteRideByUser, checkCompletedBookRide, fareNegotiate, getFareNegotiation, acceptFare, rejectFare, bookRideOnNegotiation} = require("../controller/Rider");
 
 router.get("/showRiderProfile/",showRiderProfile);
 router.post("/addVehicle/",addVehicle);
@@ -19,4 +19,5 @@ router.post("/fareNegotiate",fareNegotiate);
 router.get("/getFareNegotiation",getFareNegotiation);
 router.patch("/acceptFare",acceptFare);
 router.patch("/rejectFare",rejectFare);
+router.post("/bookRideOnNegotiation",bookRideOnNegotiation);
 module.exports = router;
