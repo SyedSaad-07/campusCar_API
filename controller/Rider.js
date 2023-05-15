@@ -705,11 +705,18 @@ const fareNegotiate = async(req, res) => {
              });
          }
 
-        const negotiate = await Negotiation.create({email: email, fullName: user.fullName, contactNo: user.contactNo, fare: fare, RideId: id});
+        const findNeg = await Negotiation.findOne({where: {email: email, Status:'Pending',RideId: id}});
+        if (findNeg) {
+            return res.status(400).json({
+                authentication: false
+             })
+        }
+
+        const negotiate = await Negotiation.create({email: email, fullName: user.fullName, contactNo: user.contactNo, fare: fare, RideId: id, Status:'Pending'});
         negotiate.save();
 
          return res.status(200).json({
-            "message":"OK"
+            authentication: true
          })
 
     } catch (error) {
@@ -736,6 +743,46 @@ const getFareNegotiation = async(req, res) => {
     
 }
 
+const acceptFare = async(req, res) => {
+    
+    const {id, email} = req.query;
+    try {
+        await Negotiation.update({Status: 'Accepted'},{
+            where:{
+                RideId: id,
+                email : email
+            },
+        })
+        return res.status(200).json({
+            "message": "accepted"
+        })
+    } catch (error) {
+        return res.status(500).json({
+            "message": error
+        })
+    }
+}
+
+const rejectFare = async(req, res) => {
+    
+    const {id, email} = req.query;
+    try {
+        await Negotiation.update({Status: 'Rejected'},{
+            where:{
+                RideId: id,
+                email : email
+            },
+        })
+        return res.status(200).json({
+            "message": "Rejected"
+        })
+    } catch (error) {
+        return res.status(500).json({
+            "message": error
+        })
+    }
+}
+
 module.exports = {
     showRiderProfile,
     addVehicle,
@@ -750,5 +797,7 @@ module.exports = {
     deleteRideByUser,
     checkCompletedBookRide,
     fareNegotiate,
-    getFareNegotiation
+    getFareNegotiation,
+    acceptFare,
+    rejectFare
 };

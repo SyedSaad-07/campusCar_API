@@ -39,6 +39,10 @@ module.exports = (sequelize, DataTypes) => {
     RideId: {
       type: DataTypes.INTEGER,
       allowNull:false
+    },
+    Status:{
+      type: DataTypes.STRING,
+      allowNull:true
     }
   }, {
     sequelize,
