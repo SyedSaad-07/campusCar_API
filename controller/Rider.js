@@ -2,6 +2,7 @@ const { User , vehicle, Rider, Ride, RideRequest, RideHistory, Negotiation } = r
 const  bcrypt  =  require("bcrypt");
 const Sequelize = require('sequelize');
 const {DataTypes,Op} = require('sequelize');
+const {sendEmail} = require('./email');
 
 // app.get('/showRiderProfile', async(req, res) => {
 const showRiderProfile = async(req, res) => {
@@ -365,6 +366,23 @@ const bookRide = async(req, res) =>{
 
         const rideHistory = await RideHistory.create({email: email, fullName: user.fullName, contactNo: user.contactNo, vehicle: vehicleData.v_number, vehicleType:vehicleData.v_type, sourceAddress:findRide.pickUpAddres, destinationAddress: findRide.dropOfAddress, dateTime: findRide.dateTime, RideStatus:'InProgress',rideAction:'booked Ride',RideId:findRide.id, fare: findRide.fair});
         await rideHistory.save();
+
+        const findUserid = await Rider.findOne({where:{
+            id: findRide.RiderId
+        }});
+        const userData = await User.findOne({where:{
+            id: findUserid.UserId
+        }})
+
+        const toEmail = userData.email;
+        const toname = userData.fullName;
+        const name = user.fullName;
+        const number = user.contactNo;
+         // usage
+         const to = toEmail;
+         const subject = `${name} booked Ride with you`;
+         const body = `Hello ${toname} - ${name} booked Ride with you, his/her contact number is ${number} try to connect. !...`;
+         await sendEmail(to, subject, body);
  
         return res.status(200).json({
              'message':'Ride request is successfully Done!'
