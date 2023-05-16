@@ -9,6 +9,11 @@ const showRiderProfile = async(req, res) => {
 
     const {email} = req.query;          
     const user = await User.findOne({ where: { email: email } });
+            if(!user){
+                return res.status(401).json({
+                    "message" : "Email is not regstered"
+                })
+       }
 
     const showRider = await Rider.findOne({ where: { UserId: user.id } });
         if(!showRider){
