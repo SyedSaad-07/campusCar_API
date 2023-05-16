@@ -809,6 +809,33 @@ const acceptFare = async(req, res) => {
                 email : email
             },
         })
+
+        const negoFare = await Negotiation.findOne({Status: 'Accepted'},{
+            where:{
+                RideId: id,
+                email : email
+            },
+        })
+
+        const user = await User.findOne({ where: { email: email } });
+        const findRide = await Ride.findOne({where:{id:id}});
+        const findUserid = await Rider.findOne({where:{
+                id: findRide.RiderId
+            }});
+            const userData = await User.findOne({where:{
+                id: findUserid.UserId
+            }})
+    
+            // const toEmail = userData.email;
+            const toname = userData.fullName;
+            const number = userData.contactNo;
+            const name = user.fullName;
+             // usage
+             const to = email;
+             const subject = `${name} Accepted your Fare Request`;
+             const body = `Hello ${name} - ${toname} Accepted your Fare Request at fare: ${negoFare.fare}, his/her contact number is ${number} try to connect. !...`;
+             await sendEmail(to, subject, body);
+
         return res.status(200).json({
             "message": "accepted"
         })
@@ -829,9 +856,36 @@ const rejectFare = async(req, res) => {
                 email : email
             },
         })
-        return res.status(200).json({
+
+        const negoFare = await Negotiation.findOne({Status: 'Rejected'},{
+            where:{
+                RideId: id,
+                email : email
+            },
+        })
+        const user = await User.findOne({ where: { email: email } });
+        const findRide = await Ride.findOne({where:{id:id}});
+        const findUserid = await Rider.findOne({where:{
+                id: findRide.RiderId
+            }});
+            const userData = await User.findOne({where:{
+                id: findUserid.UserId
+            }})
+    
+            // const toEmail = userData.email;
+            const toname = userData.fullName;
+            const number = userData.contactNo;
+            const name = user.fullName;
+             // usage
+             const to = email;
+             const subject = `${name} Rejected your Fare Request`;
+             const body = `Hello ${name} - ${toname} Rejected your Fare Request at fare: ${negoFare.fare}, his/her contact number is ${number} try to connect. !...`;
+             await sendEmail(to, subject, body);
+
+             return res.status(200).json({
             "message": "Rejected"
         })
+
     } catch (error) {
         return res.status(500).json({
             "message": error
