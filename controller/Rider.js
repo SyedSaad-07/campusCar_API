@@ -7,7 +7,9 @@ const {sendEmail} = require('./email');
 // app.get('/showRiderProfile', async(req, res) => {
 const showRiderProfile = async(req, res) => {
 
-    const {email} = req.query;          
+    const {email} = req.query;
+    try {
+        
     const user = await User.findOne({ where: { email: email } });
             if(!user){
                 return res.status(401).json({
@@ -38,6 +40,11 @@ const showRiderProfile = async(req, res) => {
             data: riderdata
         });
         }
+    } catch (error) {
+        return res.status(500).send({
+            "status":error
+        })        
+    }
 }
 
 // app.post('/addVehicle', async (req, res) => {
