@@ -510,6 +510,20 @@ const rideCompletion = async(req, res) => {
             await RideHistory.update({RideStatus:"Completed"},{where: {RideId:findRide.id, RideStatus:'InProgress'}})
         }
 
+        const name = user.fullName;
+        const number = user.contactNo;
+        for (let i = 0; i < allRideRequest.length; i++) {
+            let userData = await User.findOne({where:{id: allRideRequest[i].UserId}});
+            let toEmail = userData.email;
+            let toname = userData.fullName;
+            
+             // usage
+             const to = toEmail;
+             const subject = `${name} Completed his/her Ride with you`;
+             const body = `Hello ${toname} - ${name} Completed Ride with you, his/her contact number is ${number} try to connect. !...`;
+             await sendEmail(to, subject, body);
+        }
+
         return res.status(200).json({
             message:'Ride Completed'
         })
@@ -574,6 +588,21 @@ const deleteRide = async(req, res) => {
 
         for (let i = 0; i < allRideHis.length; i++) {
             await RideHistory.update({RideStatus:"Cancelled by Rider"},{where: {RideId:findRide.id, RideStatus:'InProgress'}})
+        }
+
+        const name = user.fullName;
+        const number = user.contactNo;
+        
+        for (let i = 0; i < allRideRequest.length; i++) {
+            let userData = await User.findOne({where:{id: allRideRequest[i].UserId}});
+            let toEmail = userData.email;
+            let toname = userData.fullName;
+            
+             // usage
+             const to = toEmail;
+             const subject = `${name} Cancelled Ride with you`;
+             const body = `Hello ${toname} - ${name} Cancelled Ride with you, his/her contact number is ${number} try to connect. !...`;
+             await sendEmail(to, subject, body);
         }
 
         return res.status(200).json({
@@ -648,7 +677,7 @@ const deleteRideByUser = async(req,res) => {
              // usage
              const to = toEmail;
              const subject = `${name} Cancelled Ride with you`;
-             const body = `Hello ${toname} - ${name} Cancelled Ride with you. !...`;
+             const body = `Hello ${toname} - ${name} Cancelled Ride with you, his/her contact number is ${number} try to connect. !...`;
              await sendEmail(to, subject, body);
 
             return res.status(200).json({
@@ -757,7 +786,7 @@ const getFareNegotiation = async(req, res) => {
     
     const {id} = req.query;
     try {        
-        const allNegotiationRide = await Negotiation.findAll({where:{RideId: id}});
+        const allNegotiationRide = await Negotiation.findAll({where:{RideId: id, Status: 'Pending'}});
         return res.status(200).json({
             data: allNegotiationRide
         })
