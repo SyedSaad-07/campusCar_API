@@ -412,10 +412,15 @@ const getAllRides = async(req, res) => {
 
 
     try {
+        const currentDate = new Date(); // Get the current date
+        currentDate.setHours(0, 0, 0, 0);
         const rides = await Ride.findAll({
             where:{
                 Status:'Not Completed',
-                [Op.not]:[{availableSeats:0}]
+                [Op.not]:[{availableSeats:0}],
+                dateTime:{
+                    [Op.gte]: currentDate
+                }
             },
             attributes: [
                 'id', 'pickUpAddres', 'dropOfAddress','fair','dateTime',
@@ -436,9 +441,13 @@ const getAllRides = async(req, res) => {
     });
     
     
-        if (rides) {
+        if (rides.length!==0) {
             return res.status(200).json({
                 rides
+            });
+        }else{
+            return res.status(400).json({
+                "message":"No Rides Availble"
             });
         }
         
@@ -599,7 +608,7 @@ const deleteRide = async(req, res) => {
         });
 
         for (let i = 0; i < allRideHis.length; i++) {
-            await RideHistory.update({RideStatus:"Cancelled by Rider"},{where: {RideId:findRide.id, RideStatus:'InProgress'}})
+            await RideHistory.update({RideStatus:"Cancelled"},{where: {RideId:findRide.id, RideStatus:'InProgress'}})
         }
 
         const name = user.fullName;
@@ -657,7 +666,7 @@ const deleteRideByUser = async(req,res) => {
 
             await RideRequest.update({bookingStatus:"Cancelled By Passenger"},{ where: {UserId:user.id, bookingStatus:"Pending", RideId:id}});
             
-            await RideHistory.update( {RideStatus:"Cancelled By Passenger"}, {where: {
+            await RideHistory.update( {RideStatus:"Cancelled"}, {where: {
                 [Op.and]:[{
                     email:email,
                     RideId:id,
@@ -799,10 +808,16 @@ const getFareNegotiation = async(req, res) => {
     const {id} = req.query;
     try {        
         const allNegotiationRide = await Negotiation.findAll({where:{RideId: id, Status: 'Pending'}});
-        return res.status(200).json({
-            data: allNegotiationRide
-        })
-
+        if (allNegotiationRide) {
+            return res.status(200).json({
+                data: allNegotiationRide
+            })
+        }else{
+            return res.status(400).json({
+                "message":"Data not found!"
+            })
+        }
+        
     } catch (error) {
         return res.status(500).json({
             "message":error
@@ -844,7 +859,7 @@ const acceptFare = async(req, res) => {
             const name = user.fullName;
              // usage
              const to = email;
-             const subject = `${name} Accepted your Fare Request`;
+             const subject = `${toname} Accepted your Fare Request`;
              const body = `Hello ${name} - ${toname} Accepted your Fare Request at fare: ${negoFare.fare}, his/her contact number is ${number} try to connect. !...`;
              await sendEmail(to, subject, body);
 
@@ -890,7 +905,7 @@ const rejectFare = async(req, res) => {
             const name = user.fullName;
              // usage
              const to = email;
-             const subject = `${name} Rejected your Fare Request`;
+             const subject = `${toname} Rejected your Fare Request`;
              const body = `Hello ${name} - ${toname} Rejected your Fare Request at fare: ${negoFare.fare}, his/her contact number is ${number} try to connect. !...`;
              await sendEmail(to, subject, body);
 

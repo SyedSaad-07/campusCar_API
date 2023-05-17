@@ -38,10 +38,6 @@ const inProgress = async(req, res) => {
         }
         });
 
-        // const rideHistoryBook = await RideHistory.findAll({where:{
-        //     [Op.and]: [{RideStatus:"InProgress"}, {rideAction:'booked Ride'}, {email:email}]
-        // }
-        // });
     
         if (rideHistory.length !== 0) {
             return res.status(200).json({
